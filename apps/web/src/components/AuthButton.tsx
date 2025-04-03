@@ -1,84 +1,131 @@
 import { useState, useEffect } from 'react';
 import { signInWithGoogle, signOut, getCurrentUser } from '../lib/auth';
-import type { AuthUser } from '@tutoring-platform/types';
+import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Loader2, LogIn, LogOut } from 'lucide-react';
 
 export default function AuthButton() {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        setLoading(true);
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
-        setError(null);
-      } catch (err) {
-        console.error('Error checking user:', err);
-        setError('사용자 정보를 가져오는 중 오류가 발생했습니다');
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     checkUser();
   }, []);
 
-  const handleSignIn = async () => {
+  async function checkUser() {
+    try {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    } catch (err) {
+      console.error('Error checking user:', err);
+      setError('사용자 정보를 가져오는 중 오류가 발생했습니다');
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSignIn() {
     try {
       setLoading(true);
       setError(null);
       await signInWithGoogle();
-      // 리다이렉션 후에는 이 함수가 실행되지 않을 것입니다
     } catch (err) {
-      console.error('Sign in error:', err);
+      console.error('Login error:', err);
       setError('로그인 중 오류가 발생했습니다');
+    } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleSignOut = async () => {
+  async function handleSignOut() {
     try {
       setLoading(true);
       setError(null);
       await signOut();
       setUser(null);
     } catch (err) {
-      console.error('Sign out error:', err);
+      console.error('Logout error:', err);
       setError('로그아웃 중 오류가 발생했습니다');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  return (
-    <div className="flex flex-col items-center gap-4">
-      {loading && <div>로딩 중...</div>}
-      
-      {error && <div className="text-red-500 mb-2">{error}</div>}
-      
-      {user ? (
-        <div className="flex items-center gap-4">
-          <span>안녕하세요, {user.name || user.email}님!</span>
-          <button
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-4">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+        {error}
+      </div>
+    );
+  }
+
+  if (user) {
+    return (
+      <Card className="w-full max-w-sm">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl">내 계정</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center space-x-4">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={user.avatar_url} alt={user.name} />
+              <AvatarFallback>
+                {user.name?.[0] || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="space-y-1">
+              <p className="text-sm font-medium leading-none">{user.name}</p>
+              <p className="text-sm text-gray-500">{user.email}</p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            className="w-full"
             onClick={handleSignOut}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
             disabled={loading}
           >
+            {loading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <LogOut className="mr-2 h-4 w-4" />
+            )}
             로그아웃
-          </button>
-        </div>
-      ) : (
-        <button
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full max-w-sm">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl">로그인</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Button
+          className="w-full"
           onClick={handleSignIn}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           disabled={loading}
         >
+          {loading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <LogIn className="mr-2 h-4 w-4" />
+          )}
           Google로 로그인
-        </button>
-      )}
-    </div>
+        </Button>
+      </CardContent>
+    </Card>
   );
 } 
