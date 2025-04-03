@@ -1,0 +1,19 @@
+{
+  "name": "tutoring-platform",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ]
+  },
+  "scripts": {
+    "dev": "yarn workspace @tutoring-platform/web dev",
+    "build": "yarn workspace @tutoring-platform/web build",
+    "preview": "yarn workspace @tutoring-platform/web preview"
+  },
+  "packageManager": "yarn@1.22.19",
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  }
+} 

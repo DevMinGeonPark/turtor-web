@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { EduCalendar } from '@tutoring-platform/ui';
+---
+
+<Layout title="튜터링 플랫폼">
+  <main>
+    <h1>튜터링 플랫폼에 오신 것을 환영합니다</h1>
+    <EduCalendar client:load events={[]} />
+  </main>
+</Layout> 
