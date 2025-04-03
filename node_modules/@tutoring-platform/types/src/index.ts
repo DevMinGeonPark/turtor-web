@@ -20,4 +20,6 @@ export interface CalendarEvent {
   date: string;
   type: 'payment' | 'class';
   description?: string;
-} 
+}
+
+export * from './auth'; 
